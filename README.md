@@ -1,0 +1,1 @@
+Various, and not well-organized, stuff about TLS.
