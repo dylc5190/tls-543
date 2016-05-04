@@ -22,26 +22,25 @@ pubkey = load_publickey(FILETYPE_ASN1,key)
 f = open("pub.pem","wb+")
 f.write(dump_publickey(FILETYPE_PEM, pubkey))
 f.close()
-print pubkey.bits()
+print "Pubkey: " + str(pubkey.bits()) + " bits,",
 rsa = _lib.EVP_PKEY_get1_RSA(pubkey._pkey)
-print _lib.RSA_size(rsa)
+print str(_lib.RSA_size(rsa)) + " bytes."
 
-#Got problem with this so use M2Crypto instead
-#result = _lib.RSA_public_decrypt(len(encHash),encHash,decHash,rsa,_lib.RSA_PKCS1_PADDING);
-
+#Got problem with pyOpenSSL to decrypt so use M2Crypto instead
+#result = _lib.RSA_public_decrypt(len(encHash),encHash,decHash,rsa,_lib.RSA_PKCS1_PADDING)
 rsa = M2Crypto.RSA.load_pub_key('pub.pem')
 decHash = rsa.public_decrypt(encHash,M2Crypto.RSA.no_padding)
-#print decHash.encode('hex') #in pkcs#7 envelop
-
+print "PKCS #1 data of signature\n", decHash.encode('hex')
+#see rfc 3447 9.2 EMSA-PKCS1-v1_5
+nextZero = decHash[2:].find("\x00") + 2
+decHash = decHash[nextZero+1:]					#asn.1 DER-encoded
 #extract actual data in asn.1 using Crypto.Util.asn1
 der = asn1.DerSequence()
-nextZero = decHash[2:].find("\x00") + 2 #because I start from 2. I haven't figured this out yet.
-decHash = decHash[nextZero+1:]
 der.decode(decHash)
-#der[0] ?
+#der[0] is OID
 der_sig_in = asn1.DerObject()
 der_sig_in.decode(der[1])
-print der_sig_in.payload.encode('hex')
+print "Decrypted SHA1: " + der_sig_in.payload.encode('hex')
 
 
 

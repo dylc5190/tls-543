@@ -16,7 +16,7 @@ if dir == '':
 
 # Initialize context
 ctx = SSL.Context(SSL.SSLv23_METHOD)
-ciphers = "RSA" 
+ciphers = "DES-CBC3-SHA" 
 ctx.set_cipher_list(ciphers)
 #ctx.set_verify(SSL.VERIFY_PEER, verify_cb) # Demand a certificate
 #ctx.use_privatekey_file (os.path.join(dir, 'client.pkey'))
@@ -37,9 +37,9 @@ except SSL.Error:
 
 # followings are not available in Python ssl module
 # you can use client_random and master_key to compose (Pre)-Master-Secret log file for Wireshark just like browser's $SSLKEYLOGFILE
-# sock.client_random()
-# sock.server_random()
-# sock.master_key()
+print sock.client_random().encode('hex')
+print sock.server_random().encode('hex')
+print sock.master_key().encode('hex')
 
 sock.shutdown()
 sock.close()
