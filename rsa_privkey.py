@@ -99,15 +99,23 @@ print "master: " + master_key.encode('hex')
 seed = PRF.get_seed_for_key_expansion(client_random,server_random)
 label = PRF.get_label_for_key_expansion()
 secret = master_key
-key_block = PRF.PRF12(secret,label,seed,104) #length depends on cipher suite. 104 is for 3DES.
+#this is TLS 1.2 so I don't need to calculate IV for CBC-based block ciphers
+key_block = PRF.PRF12(secret,label,seed,88) #length depends on cipher suite. 88 is for 3DES without IV.
 #I only need "sender" part now
-MAC = key_block[0:20]
-SESSION_KEY = key_block[40:64]
-IV = key_block[88:96]
-print "key: " + SESSION_KEY.encode('hex')
-print "IV: " + IV.encode('hex')
+CLIENT_MAC = key_block[0:20]
+CLIENT_SESSION_KEY = key_block[40:64]
+SERVER_SESSION_KEY = key_block[64:88] 
+print "client key: " + CLIENT_SESSION_KEY.encode('hex')
+print "server key: " + SERVER_SESSION_KEY.encode('hex')
 
-finished = '4f10a0347b552c614d9f446597a92a27aa499b7118faa6335fde3f22d7f4b944d7a7713facb1d9768b6a93c4b5c3af2a'
-cipher = DES3.new(SESSION_KEY,DES3.MODE_CBC,IV=IV)
+IV = '4f10a0347b552c61'.decode('hex')
+finished = '4d9f446597a92a27aa499b7118faa6335fde3f22d7f4b944d7a7713facb1d9768b6a93c4b5c3af2a'
+cipher = DES3.new(CLIENT_SESSION_KEY,DES3.MODE_CBC,IV=IV)
 finished_dec = cipher.decrypt(finished.decode('hex'))
-print "verifiy data: " + finished_dec.encode('hex')
+print "client verifiy data: " + finished_dec.encode('hex')
+
+IV = 'cc2b5de1fb78036f'.decode('hex')
+finished = '3e1fbd922c1462b98f0da12a1746d28f1c8d9f0ceef073a0a0260acc0b93d56de5f8d738d0230230'
+cipher = DES3.new(SERVER_SESSION_KEY,DES3.MODE_CBC,IV=IV)
+finished_dec = cipher.decrypt(finished.decode('hex'))
+print "server verifiy data: " + finished_dec.encode('hex')
