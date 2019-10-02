@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "https", "https\https.vcproj", "{AE316C76-7859-40A6-BD86-01F7BCCEE2BE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prf", "prf\prf.vcproj", "{7B0867F3-B10A-4E5B-84D6-8E68BEC1917A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE316C76-7859-40A6-BD86-01F7BCCEE2BE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AE316C76-7859-40A6-BD86-01F7BCCEE2BE}.Debug|Win32.Build.0 = Debug|Win32
+		{AE316C76-7859-40A6-BD86-01F7BCCEE2BE}.Release|Win32.ActiveCfg = Release|Win32
+		{AE316C76-7859-40A6-BD86-01F7BCCEE2BE}.Release|Win32.Build.0 = Release|Win32
+		{7B0867F3-B10A-4E5B-84D6-8E68BEC1917A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B0867F3-B10A-4E5B-84D6-8E68BEC1917A}.Debug|Win32.Build.0 = Debug|Win32
+		{7B0867F3-B10A-4E5B-84D6-8E68BEC1917A}.Release|Win32.ActiveCfg = Release|Win32
+		{7B0867F3-B10A-4E5B-84D6-8E68BEC1917A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
