@@ -1,0 +1,49 @@
+ ---    ----   ---------
+ | |    |  |   |       |          HOST
+  .1.1   br    .1.254  .2.1       IP
+  o     o  o   o       o          NIC
+ --------  ---------   ---------  SWITCH
+ |sw1   |  |sw2    |   |sw3    |
+ --------  ---------   ---------
+
+
+docker network create -d bridge --internal sw1 (and sw2, sw3)
+docker network connect sw1 client
+docker network connect sw2 server
+docker network connect sw3 server
+docker network connect sw1 mitm
+docker network connect sw2 mitm
+
+# This is cheating. Don't know how to enable forwarding between bridges
+sudo iptables -D FORWARD -j DOCKER-ISOLATION-STAGE-1
+
+client
+docker run --privileged --rm -it --name client alpine sh
+apk add openssl tcpdump
+ip a a 10.0.1.1/24 dev eth1
+ip r a default via 10.0.1.254
+openssl s_client -connect 10.0.2.1:443
+
+server
+docker run --privileged --rm -it --name server alpine sh
+apk add openssl tcpdump
+ip a a 10.0.1.254 dev eth1
+ip a a 10.0.2.1 dev eth2
+openssl genrsa -out ca.key 4096
+openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
+openssl s_server -key ca.key -cert ca.crt -accept 443
+
+mitm (build from https://hub.docker.com/r/vimagick/sslsplit/dockerfile and commit it as image named mitm)
+# Test bridge mode (route mode seems easier)
+docker run -it --rm --name mitm --privileged mitm sh
+openssl genrsa -out ca.key 4096
+openssl req -new -x509 -days 1826 -key ca.key -out ca.crt
+# Redirect
+sysctl -w net.ipv4.ip_forward=1
+iptables -t nat -F
+iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-ports 8443
+# Need IP and route that can access the destination (just like a standalone host)
+ip a a 10.0.1.2/24 dev br0
+ip r a 10.0.2.0/24 via 10.0.1.254
+# Run
+sslsplit -D -l connections.log -j /tmp/sslsplit/ -S /tmp/sslsplit/logdir -k ca.key -c ca.crt ssl 0.0.0.0 8443
